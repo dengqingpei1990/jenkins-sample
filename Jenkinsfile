@@ -3,8 +3,8 @@ pipeline {
   stages {
     stage ('编译代码，打包镜像，这里用nginx作了一个简单的镜像，省去了编译部分') {
       environment {
-        IMG_NAME = "${JOB_NAME}"
-        IMG_VERSION = "${CHANGE_ID}"
+        IMG_NAME = "${JOB_NAME%/*}"
+        IMG_VERSION = "${BUILD_ID}"
       }
       steps {
         sh 'echo ${IMG_NAME}:${CHANGE_ID}'
