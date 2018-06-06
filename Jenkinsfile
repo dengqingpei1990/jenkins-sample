@@ -8,7 +8,7 @@ pipeline {
       }
       steps {
         script {
-          ${env.IMG_NAME} = 2//${env.JOB_NAME}.substring(0, ${env.JOB_NAME}.indexOf("/"))
+          echo ${env.IMG_NAME} == 2//${env.JOB_NAME}.substring(0, ${env.JOB_NAME}.indexOf("/"))
         }
         sh 'echo $IMG_NAME'
       }
