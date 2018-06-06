@@ -6,7 +6,7 @@ pipeline {
         IMG_VERSION = "${BUILD_ID}"
       }
       steps {
-        withDockerRegistry(credentialsId: 'docker-registry', url: 'https://registry.cn-shanghai.aliyuncs.com')
+        withDockerRegistry(credentialsId: 'docker-registry', url: 'https://registry.cn-shanghai.aliyuncs.com') {
           script {
             env.IMG_NAME = env.JOB_NAME.substring(0, env.JOB_NAME.indexOf("/"))
             def customImage = docker.build("registry.cn-shanghai.aliyuncs.com/dengqingpei/${IMG_NAME}:${IMG_VERSION}")
