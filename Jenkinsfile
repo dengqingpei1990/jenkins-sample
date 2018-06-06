@@ -7,7 +7,7 @@ pipeline {
         IMG_VERSION = "${CHANGE_ID}"
       }
       steps {
-        sh 'echo ${JOB_NAME}:${IMG_VERSION}'
+        sh 'echo ${IMG_NAME}:${CHANGE_ID}'
       }
     }
   }
