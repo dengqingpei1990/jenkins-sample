@@ -22,7 +22,7 @@ pipeline {
       }
     }
     stage ('部署到测试环境') {
-      when { not { branch 'master' } }
+      //when { not { branch 'master' } }
       environment {
         IMG_VERSION = "v_${BUILD_ID}"
       }
