@@ -36,7 +36,16 @@ pipeline {
         * 该插件执行kubectl apply -R -f k8s/*.yaml,并用环境变量替换yaml文件中的${XXX}变量，实现模板功能 
         */
         kubernetesDeploy configs: 'k8s/*.yaml', kubeConfig: [path: ''], kubeconfigId: 'kubeconfig', secretName: '', ssh: [sshCredentialsId: '*', sshServer: ''], textCredentials: [certificateAuthorityData: '', clientCertificateData: '', clientKeyData: '', serverUrl: 'https://']
-
+      }
+    }
+    stage ('部署到线上环境') {
+      when { branch 'master' }
+      environment {
+        IMG_TAG = sh returnStdout: true, script : "curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 1 | tr -d ' \"'"
+        IMG_NAME = "registry.cn-shanghai.aliyuncs.com/dengqingpei/${PROJECT_NAME}"
+      }
+      steps {
+        echo 'deploy production'
       }
     }
   }
