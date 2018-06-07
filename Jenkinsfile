@@ -55,7 +55,7 @@ pipeline {
       
       steps {
         
-        echo "${IMG_NAME}:${DEFAULT_IMG_TAG}"
+        echo "${env.IMG_NAME}:${env.DEFAULT_IMG_TAG}"
         echo 'deploy production'
       }
     }
