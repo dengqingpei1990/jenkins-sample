@@ -10,14 +10,14 @@ spec:
   selector:
     matchLables:
       app: ${PROJECT_NAME}
-   template:
-     metadata:
-       labels:
-         app: ${PROJECT_NAME}
-     spec:
-       containers: 
-       - name: ${PROJECT_NAME}
-         image: ${REGIS}:${IMG_TAG}
-         ports:
-         - containerPort: 80
+  template:
+    metadata:
+      labels:
+        app: ${PROJECT_NAME}
+    spec:
+      containers: 
+      - name: ${PROJECT_NAME}
+        image: ${REGIS}:${IMG_TAG}
+        ports:
+        - containerPort: 80
       
