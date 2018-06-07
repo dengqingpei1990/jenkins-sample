@@ -49,12 +49,13 @@ pipeline {
         message "部署指定版本到线上环境，默认最新的版本"
         ok "发布"
         parameters {
-          string(name: 'IMG_TAG', defaultValue: "${DEFAULT_IMG_TAG}", description: "可选版本：${OPTIONAL_TAG}")
+          string(name: 'IMG_TAG', defaultValue: "${env.DEFAULT_IMG_TAG}", description: "可选版本：${env.OPTIONAL_TAG}")
         }
       }
       
       steps {
-        echo '${IMG_NAME}:${IMG_TAG}'
+        
+        echo "${IMG_NAME}:${DEFAULT_IMG_TAG}"
         echo 'deploy production'
       }
     }
