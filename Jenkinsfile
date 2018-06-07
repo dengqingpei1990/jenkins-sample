@@ -25,7 +25,7 @@ pipeline {
     stage ('部署到测试环境') {
       when { not { branch 'master' } }
       environment {
-        IMG_VERSION = "v_${BUILD_ID}"
+        IMG_TAG = "v_${BUILD_ID}"
         IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
         // RES = sh returnStdout: true, script : "echo aaa"
       }
