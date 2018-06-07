@@ -11,15 +11,11 @@ pipeline {
         IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
       }
       steps {
-        // 默认从project根目录中的Dockerfile打包镜像，这里用了nginx镜像，和一个简单的html，省去编译的步骤
         echo 'build code from SCM.....'
-        // credentials需要在jenkins上手动创建，即为docker registry的登陆用户和密码
-        //withDockerRegistry(credentialsId: 'docker-registry-local', url: 'https://registry.example.com:5000') {
-          script {
-            def customImage = docker.build("${IMG_NAME}:${IMG_TAG}")
-            customImage.push()
-          }
-        //}
+        script {
+          def customImage = docker.build("${IMG_NAME}:${IMG_TAG}")
+          customImage.push()
+        }
       }
     }
     stage ('部署到测试环境') {
