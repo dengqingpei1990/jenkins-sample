@@ -2,9 +2,9 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: ${PROJECT_NAME}
-  version: ${IMG_TAG}
   labels:
     app: ${PROJECT_NAME}
+    version: ${IMG_TAG}
 spec:
   replicas: 2
   selector:
