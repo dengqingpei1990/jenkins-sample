@@ -23,11 +23,13 @@ pipeline {
     }
     stage ('部署到测试环境') {
       //when { not { branch 'master' } }
+      //env.RES = sh returnStdout: true, script : "echo aaa"
       environment {
         IMG_VERSION = "v_${BUILD_ID}"
+        RES = sh returnStdout: true, script : "echo aaa"
       }
       steps {
-        env.RES = sh returnStdout: true, script : "echo aaa"
+        
         sh "$RES"
         /** 
         * 这里用到了kubernetesDeploy步骤，由Kubernetes Continuous Deploy插件提供，需手动安装
