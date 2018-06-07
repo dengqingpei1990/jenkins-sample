@@ -27,6 +27,7 @@ pipeline {
         IMG_VERSION = "v_${BUILD_ID}"
       }
       steps {
+        // env.RES = bat returnStdout: true, script : "echo aaa"
         /** 
         * 这里用到了kubernetesDeploy步骤，由Kubernetes Continuous Deploy插件提供，需手动安装
         * 'kubeconfig'即为master节点下/etc/kubenetes/admin.conf文件内容，需在jenkins credentials设置中添加
