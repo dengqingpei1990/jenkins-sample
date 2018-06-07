@@ -46,18 +46,18 @@ pipeline {
         IMG_NAME = "registry.cn-shanghai.aliyuncs.com/dengqingpei/${PROJECT_NAME}"
         TEST = sh returnStdout: true, script: "curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list"
       }
-      input {
-        message "部署指定版本到线上环境，默认最新的版本"
-        ok "发布"
-        parameters {
-          string(name: 'IMG_TAG', defaultValue: "${env.DEFAULT_IMG_TAG}", description: "可选版本：${env.OPTIONAL_TAG}")
-        }
-      }
+      //input {
+        //message "部署指定版本到线上环境，默认最新的版本"
+        //ok "发布"
+        //parameters {
+          //string(name: 'IMG_TAG', defaultValue: "${env.DEFAULT_IMG_TAG}", description: "可选版本：${env.OPTIONAL_TAG}")
+        //}
+      //}
       
       steps {
         
-        echo "${env.IMG_NAME}:${env.DEFAULT_IMG_TAG}"
-        echo 'deploy production'
+        //echo "${env.IMG_NAME}:${env.DEFAULT_IMG_TAG}"
+        //echo 'deploy production'
         echo "${env.TEST}"
       }
     }
