@@ -8,8 +8,7 @@ metadata:
 spec:
   replicas: 2
   selector:
-    matchLables:
-      app: ${PROJECT_NAME}
+    app: ${PROJECT_NAME}
   template:
     metadata:
       labels:
