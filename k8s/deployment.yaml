@@ -8,7 +8,8 @@ metadata:
 spec:
   replicas: 2
   selector:
-    app: ${PROJECT_NAME}
+    matchLabels:
+      app: jenkins-sample
   template:
     metadata:
       labels:
