@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${PROJECT_NAME}
+  version: ${IMG_TAG}
+  labels:
+    app: ${PROJECT_NAME}
+spec:
+  selector:
+    matchLables:
+      app: ${PROJECT_NAME}
+   replicas: 2
+   template:
+     metadata:
+       labels:
+         app: ${PROJECT_NAME}
+     spec:
+       containers: 
+       - name: ${PROJECT_NAME}
+         image: ${REGIS}:${IMG_TAG}
+         ports:
+         - containerPort: 80
+      
