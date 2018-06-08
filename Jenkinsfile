@@ -1,3 +1,10 @@
+def getTag(){
+    def command =(['/bin/bash','-c','''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 5 | tr -d ' ",' | sort -t '_' -k 2 -nr'''])
+    def proc = command.execute()
+    proc.waitFor()
+    resault = proc.text
+    return resault
+}
 pipeline {
   agent any
   environment {
@@ -46,21 +53,13 @@ pipeline {
         IMG_NAME = "registry.cn-shanghai.aliyuncs.com/dengqingpei/${PROJECT_NAME}"
       }
       input {
-        message "部署指定版本到线上环境，默认最新的版本"
+        message "部署指定镜像版本到线上环境"
         ok "发布"
         parameters {
-          string(name: 'IMG_TAG', defaultValue: "${env.DEFAULT_IMG_TAG}", description: "可选版本：${env.OPTIONAL_TAG}")
+          choice(name: 'IMG_TAG', choices: getTag(), description: "默认最新的版本")
         }
       }
-      def command =['/bin/bash','-c','''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 5 | tr -d ' ",' | sort -t '_' -k 2 -nr''']
-def proc = command.execute()
-proc.waitFor()
-resault = proc.text
-def strArry=resault.split("\\n")
-def list = java.util.Arrays.asList(strArry)
-return list
       steps {
-        
         echo "${env.IMG_NAME}:${env.DEFAULT_IMG_TAG}"
         echo 'deploy production'
         
