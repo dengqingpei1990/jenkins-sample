@@ -1,10 +1,3 @@
-def getTag(){
-    def command =(['/bin/bash','-c','''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 5 | tr -d ' ",' | sort -t '_' -k 2 -nr'''])
-    def proc = command.execute()
-    proc.waitFor()
-    resault = proc.text
-    return resault
-}
 pipeline {
   agent any
   environment {
@@ -20,13 +13,10 @@ pipeline {
       steps {
         // 默认从project根目录中的Dockerfile打包镜像，这里用了nginx镜像，和一个简单的html，省去编译的步骤
         echo 'build code from SCM.....'
-        // credentials需要在jenkins上手动创建，即为docker registry的登陆用户和密码
-        //withDockerRegistry(credentialsId: 'docker-registry-local', url: 'https://registry.example.com:5000') {
-          script {
-            def customImage = docker.build("${IMG_NAME}:${IMG_TAG}")
-            customImage.push()
-          }
-        //}
+        script {
+          def customImage = docker.build("${IMG_NAME}:${IMG_TAG}")
+          customImage.push()
+        }
       }
     }
     stage ('部署到测试环境') {
@@ -34,7 +24,6 @@ pipeline {
       environment {
         IMG_TAG = "v_${BUILD_ID}"
         IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
-        // RES = sh returnStdout: true, script : "echo aaa"
       }
       steps {
         /** 
@@ -48,16 +37,16 @@ pipeline {
     stage ('部署到线上环境') {
       when { branch 'master' }
       environment {
-        DEFAULT_IMG_TAG = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 1 | tr -d ' \"' '''
-        OPTIONAL_TAG = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 5 | tr -d ' ",' | sort -t '_' -k 2 -nr '''
         IMG_NAME = "registry.cn-shanghai.aliyuncs.com/dengqingpei/${PROJECT_NAME}"
       }
-      
       steps {
-        echo "${env.IMG_NAME}:${env.DEFAULT_IMG_TAG}"
-        input message: '部署指定镜像版本到线上环境', ok: '部署', parameters: [choice(choices: ${env.OPTIONAL_TAG}, description: '镜像版本，默认最新', name: 'IMG_TAG')]
-        echo 'deploy production'
-        
+        script {
+          def tags = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 20 | tr -d ' ",' | sort -t '_' -k 2 -nr '''
+          def pm = input message: '部署指定镜像版本到线上环境', id:'deployment', ok: '部署', submitterParameter: 'approval', parameters: [choice(choices: tags, description: '镜像版本，默认最新', name: 'tag')]
+          env.IMG_TAG = pm.tag
+          env.SUBMITTER = pm. approval
+        }
+        sh "echo ${SUBMITTER} 将 ${IMG_NAME}:${IMG_TAG} 发布到生产环境 !"
       }
     }
   }
