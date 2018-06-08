@@ -52,7 +52,13 @@ pipeline {
           string(name: 'IMG_TAG', defaultValue: "${env.DEFAULT_IMG_TAG}", description: "可选版本：${env.OPTIONAL_TAG}")
         }
       }
-      
+      def command =['/bin/bash','-c','''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 5 | tr -d ' ",' | sort -t '_' -k 2 -nr''']
+def proc = command.execute()
+proc.waitFor()
+resault = proc.text
+def strArry=resault.split("\\n")
+def list = java.util.Arrays.asList(strArry)
+return list
       steps {
         
         echo "${env.IMG_NAME}:${env.DEFAULT_IMG_TAG}"
