@@ -34,7 +34,6 @@ pipeline {
       environment {
         IMG_TAG = "v_${BUILD_ID}"
         IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
-        // RES = sh returnStdout: true, script : "echo aaa"
       }
       steps {
         /** 
@@ -49,18 +48,13 @@ pipeline {
       when { branch 'master' }
       environment {
         DEFAULT_IMG_TAG = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 1 | tr -d ' \"' '''
-        OPTIONAL_TAG = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 5 | tr -d '\n ' '''
+        OPTIONAL_TAG = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 5 | tr -d ' ",' | sort -t '_' -k 2 -nr '''
         IMG_NAME = "registry.cn-shanghai.aliyuncs.com/dengqingpei/${PROJECT_NAME}"
       }
-      input {
-        message "部署指定镜像版本到线上环境"
-        ok "发布"
-        parameters {
-          choice(name: 'IMG_TAG', choices: getTag(), description: "默认最新的版本")
-        }
-      }
+      
       steps {
         echo "${env.IMG_NAME}:${env.DEFAULT_IMG_TAG}"
+        input message: '部署指定镜像版本到线上环境', ok: '部署', parameters: [choice(choices: ${env.OPTIONAL_TAG}, description: '镜像版本，默认最新', name: 'IMG_TAG')]
         echo 'deploy production'
         
       }
