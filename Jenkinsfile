@@ -1,3 +1,10 @@
+def getTag(){
+    def command =(['/bin/bash','-c','''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 5 | tr -d ' ",' | sort -t '_' -k 2 -nr'''])
+    def proc = command.execute()
+    proc.waitFor()
+    resault = proc.text
+    return resault
+}
 pipeline {
   agent any
   environment {
@@ -41,24 +48,22 @@ pipeline {
     stage ('部署到线上环境') {
       when { branch 'master' }
       environment {
-        DEFAULT_IMG_TAG = sh returnStdout: true, script : "curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 1 | tr -d ' \"'"
-        OPTIONAL_TAG = sh returnStdout: true, script : "curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*'| tail -n 5 | tr -d '\n '"
+        DEFAULT_IMG_TAG = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 1 | tr -d ' \"' '''
+        OPTIONAL_TAG = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 5 | tr -d '\n ' '''
         IMG_NAME = "registry.cn-shanghai.aliyuncs.com/dengqingpei/${PROJECT_NAME}"
       }
       input {
-        message "部署指定版本到线上环境，默认最新的版本"
+        message "部署指定镜像版本到线上环境"
         ok "发布"
         parameters {
-          string(name: 'IMG_TAG', defaultValue: "${DEFAULT_IMG_TAG}", description: "可选版本：${OPTIONAL_TAG}")
+          choice(name: 'IMG_TAG', choices: getTag(), description: "默认最新的版本")
         }
       }
-      
       steps {
-        echo '${IMG_NAME}:${IMG_TAG}'
+        echo "${env.IMG_NAME}:${env.DEFAULT_IMG_TAG}"
         echo 'deploy production'
+        
       }
     }
   }
 }
-
-
