@@ -22,7 +22,7 @@ pipeline {
         script {
           // 从version.txt文件获取镜像TAG
           env.IMG_TAG = sh (returnStdout: true, script: '''
-          #/bin/bash
+          #!/bin/bash
           set +x
           tag=$(head -n 1  version.txt)
           tag_list=$(curl -s -XGET http://${LOCAL_REGISTRY}/v2/${PROJECT_NAME}/tags/list | jq .tags | tr -d '[]\n"' )
@@ -40,7 +40,11 @@ pipeline {
     stage ('部署到测试环境') {
       when { not { branch 'master' } }
       environment {
-        IMG_TAG = "v_${BUILD_ID}"
+        IMG_TAG = sh (returnStdout: true, script: '''
+        #!/bin/bash
+        set +x
+        head -n 1 version.txt
+        ''' )
         IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
       }
       steps {
