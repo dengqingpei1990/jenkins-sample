@@ -24,6 +24,7 @@ pipeline {
           #/bin/bash
           tag=$(head -n 1  version.txt)
           tag_list=$(curl -s -XGET http://${LOCAL_REGISTRY}/v2/${PROJECT_NAME}/tags/list | jq .tags)
+          echo ${LOCAL_REGISTRY} ${PROJECT_NAME}
           echo $tag_list
           last_tag=$(echo $tag_list | tr -d '[]\n"' | awk -F ',' '{print $NF}')
           if [ "$(echo $tag_list | grep ${tag} | wc -l)" == "1" ]; 
