@@ -31,7 +31,7 @@ pipeline {
         git config user.email jenkins@example.com
         git add version.txt
         git commit -am "update version.txt to ${IMG_TAG}"
-        git push origin
+        git push origin HEAD:refs/heads/${BRANCH_NAME}
         '''
 
       }
