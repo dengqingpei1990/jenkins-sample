@@ -29,7 +29,7 @@ pipeline {
             then echo "版本冲突！'${IMG_TAG}'已构建过,请修改version.txt文件更换版本号,上次构建成功的版本号:${last_tag}"&&exit 1
           fi
           echo $tag
-          '''
+          ''').trim()
           def customImage = docker.build("${IMG_NAME}:${IMG_TAG}")
           customImage.push()
         }
