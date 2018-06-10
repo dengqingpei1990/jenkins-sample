@@ -4,24 +4,34 @@ pipeline {
         PROJECT_NAME = env.JOB_NAME.substring(0, env.JOB_NAME.indexOf("/"))
   }
   stages {
-    stage ('编译，打包，推送线下仓库') {
+    stage ('编译') {
+      when { not { branch 'master' } }
+      steps {
+        echo "compile code from SCM...."
+      }
+    }
+    stage ('打包镜像，推送线下仓库') {
       when { not { branch 'master' } }
       environment {
-        IMG_TAG = sh returnStdout: true, script: '''
-        #/bin/bash
-        if [ ! -e version.txt ]; then echo 1.0.0>>version.txt; fi
-        head -n1 version.txt | awk -F '.' '{print $1"."$2"."$3+1}'
-        '''
         IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
       }
       steps {
         // 默认从project根目录中的Dockerfile打包镜像，这里用了nginx镜像，和一个简单的html，省去编译的步骤
-        echo 'build code from SCM.....'
         script {
-          echo '${IMG_TAG}'
+          env.IMG_TAG = sh (returnStdout: true, script: '''
+          #/bin/bash
+          if [ ! -e version.txt ]; then echo 1.0.0>>version.txt; fi
+          head -n1 version.txt | awk -F '.' '{print $1"."$2"."$3+1}'
+          ''').trim()
           def customImage = docker.build("${IMG_NAME}:${IMG_TAG}")
           customImage.push()
         }
+        sh '''
+        git add --all
+        git commit -am "update version.txt to ${IMG_TAG}"
+        git push origin
+        '''
+
       }
     }
     stage ('部署到测试环境') {
