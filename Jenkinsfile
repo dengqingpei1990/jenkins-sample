@@ -7,7 +7,7 @@ pipeline {
     stage ('编译，打包，推送线下仓库') {
       when { not { branch 'master' } }
       environment {
-        IMG_TAG = sh retrunStdout: true, sh '''
+        IMG_TAG = sh returnStdout: true, sh '''
         #/bin/bash
         if [ ! -e version.txt ]; then echo 1.0.0>>version.txt; fi
         head -n1 version.txt | awk -F '.' '{print $1"."$2"."$3+1}'
