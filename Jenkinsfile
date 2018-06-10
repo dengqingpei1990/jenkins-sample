@@ -33,14 +33,6 @@ pipeline {
           def customImage = docker.build("${IMG_NAME}:${IMG_TAG}")
           customImage.push()
         }
-        sh '''
-        git config user.name jenkins
-        git config user.email jenkins@example.com
-        git add version.txt
-        git commit -am "update version.txt to ${IMG_TAG}"
-        git push origin HEAD:refs/heads/${BRANCH_NAME}
-        '''
-
       }
     }
     stage ('部署到测试环境') {
