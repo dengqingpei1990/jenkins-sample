@@ -27,7 +27,9 @@ pipeline {
           customImage.push()
         }
         sh '''
-        git add --all
+        git config user.name jenkins
+        git config user.email jenkins@example.com
+        git add version.txt
         git commit -am "update version.txt to ${IMG_TAG}"
         git push origin
         '''
