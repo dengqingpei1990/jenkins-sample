@@ -22,7 +22,7 @@ pipeline {
     stage ('部署到测试环境') {
       when { not { branch 'master' } }
       environment {
-        IMG_TAG = "v_${BUILD_ID}"
+        IMG_TAG = sh returnStdout: true, script: "cat version.txt | head -n 1" 
         IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
       }
       steps {
