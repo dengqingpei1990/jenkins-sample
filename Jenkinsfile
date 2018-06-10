@@ -20,8 +20,10 @@ pipeline {
       steps {
         // 默认从project根目录中的Dockerfile打包镜像，这里用了nginx镜像，和一个简单的html，省去编译的步骤
         script {
+          // 从version.txt文件获取镜像TAG
           env.IMG_TAG = sh (returnStdout: true, script: '''
           #/bin/bash
+          set +x
           tag=$(head -n 1  version.txt)
           tag_list=$(curl -s -XGET http://${LOCAL_REGISTRY}/v2/${PROJECT_NAME}/tags/list | jq .tags)
           last_tag=$(echo $tag_list | tr -d '[]\n"' | awk -F ',' '{print $NF}')
