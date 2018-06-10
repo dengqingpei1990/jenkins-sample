@@ -7,13 +7,18 @@ pipeline {
     stage ('编译，打包，推送线下仓库') {
       when { not { branch 'master' } }
       environment {
-        IMG_TAG = "v_${BUILD_ID}"
+        IMG_TAG = sh retrunStdout: true, sh '''
+        #/bin/bash
+        if [ ! -e version.txt ]; then echo 1.0.0>>version.txt; fi
+        head -n1 version.txt | awk -F '.' '{print $1"."$2"."$3+1}'
+        '''
         IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
       }
       steps {
         // 默认从project根目录中的Dockerfile打包镜像，这里用了nginx镜像，和一个简单的html，省去编译的步骤
         echo 'build code from SCM.....'
         script {
+          echo '${IMG_TAG}'
           def customImage = docker.build("${IMG_NAME}:${IMG_TAG}")
           customImage.push()
         }
