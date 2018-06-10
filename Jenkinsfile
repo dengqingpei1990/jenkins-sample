@@ -1,7 +1,7 @@
 pipeline {
   agent any
   environment {
-        PROJECT_NAME = env.JOB_NAME.substring(0, env.JOB_NAME.indexOf("/"))
+    PROJECT_NAME = env.JOB_NAME.substring(0, env.JOB_NAME.indexOf("/"))
   }
   stages {
     stage ('编译，打包，推送线下仓库') {
