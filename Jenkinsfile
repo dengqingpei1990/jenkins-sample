@@ -2,18 +2,36 @@ pipeline {
   agent any
   environment {
     PROJECT_NAME = env.JOB_NAME.substring(0, env.JOB_NAME.indexOf("/"))
+    LOCAL_REGISTRY = "registry.example.com:5000"   //线下镜像仓库,未使用tls身份认证
+    REGISTRY = "registry.example.com:5000"         //线上镜像仓库
   }
   stages {
-    stage ('编译，打包，推送线下仓库') {
+    stage ('编译') {
+      when { not { branch 'master' } }
+      steps {
+        echo "compile code from SCM...."
+      }
+    }
+    stage ('打包镜像,推送线下仓库') {
       when { not { branch 'master' } }
       environment {
-        IMG_TAG = "v_${BUILD_ID}"
-        IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
+        IMG_NAME = "${LOCAL_REGISTRY}/${PROJECT_NAME}"
       }
       steps {
         // 默认从project根目录中的Dockerfile打包镜像，这里用了nginx镜像，和一个简单的html，省去编译的步骤
-        echo 'build code from SCM.....'
         script {
+          // 从version.txt文件获取镜像TAG
+          env.IMG_TAG = sh (returnStdout: true, script: '''
+          #!/bin/bash
+          set +x
+          tag=$(head -n 1  version.txt)
+          tag_list=$(curl -s -XGET http://${LOCAL_REGISTRY}/v2/${PROJECT_NAME}/tags/list | jq .tags | tr -d '[]\n"' )
+          last_tag=$(echo $tag_list | awk -F ',' '{print $NF}')
+          if [ "$(echo $tag_list | grep ${tag} | wc -l)" == "1" ]; 
+            then echo "版本冲突！'${tag}'已构建过,请修改version.txt文件更换版本号,上次构建成功的版本号:${last_tag}"&&exit 1
+          fi
+          echo $tag
+          ''').trim()
           def customImage = docker.build("${IMG_NAME}:${IMG_TAG}")
           customImage.push()
         }
@@ -22,7 +40,11 @@ pipeline {
     stage ('部署到测试环境') {
       when { not { branch 'master' } }
       environment {
-        IMG_TAG = sh returnStdout: true, script: "cat version.txt | head -n 1" 
+        IMG_TAG = sh (returnStdout: true, script: '''
+        #!/bin/bash
+        set +x
+        head -n 1 version.txt
+        ''' )
         IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
       }
       steps {
