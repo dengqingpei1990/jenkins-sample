@@ -27,7 +27,6 @@ pipeline {
           tag=$(head -n 1  version.txt)
           tag_list=$(curl -s -XGET http://${LOCAL_REGISTRY}/v2/${PROJECT_NAME}/tags/list | jq .tags | tr -d '[]\n"' )
           last_tag=$(echo $tag_list | awk -F ',' '{print $NF}')
-          echo $tag_list ${LOCAL_REGISTRY} ${PROJECT_NAME}
           if [ "$(echo $tag_list | grep ${tag} | wc -l)" == "1" ]; 
             then echo "版本冲突！'${tag}'已构建过,请修改version.txt文件更换版本号,上次构建成功的版本号:${last_tag}"&&exit 1
           fi
