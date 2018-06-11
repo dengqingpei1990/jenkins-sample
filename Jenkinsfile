@@ -68,7 +68,11 @@ pipeline {
       steps {
         
         script {
-          def tags = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 20 | tr -d ' ",' | sort -t '_' -k 2 -nr '''
+          def tags = sh returnStdout: true, script : '''
+          #!/bin/bash
+          set +x
+          curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 20 | tr -d ' ",' | sort -t '_' -k 2 -nr 
+          '''
             timeout(time: 20, unit:'SECOND'){
             def pm = input message: '部署指定镜像版本到线上环境', id:'deployment', ok: '部署', submitterParameter: 'approval', parameters: [choice(choices: tags, description: '镜像版本，默认最新', name: 'tag')]
             env.IMG_TAG = pm.tag
