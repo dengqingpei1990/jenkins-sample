@@ -69,9 +69,11 @@ pipeline {
         
         script {
           def tags = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 20 | tr -d ' ",' | sort -t '_' -k 2 -nr '''
-          def pm = input message: '部署指定镜像版本到线上环境', id:'deployment', ok: '部署', submitterParameter: 'approval', parameters: [choice(choices: tags, description: '镜像版本，默认最新', name: 'tag')]
-          env.IMG_TAG = pm.tag
-          env.SUBMITTER = pm.approval
+            timeout(time: 20, unit:'SECOND'){
+            def pm = input message: '部署指定镜像版本到线上环境', id:'deployment', ok: '部署', submitterParameter: 'approval', parameters: [choice(choices: tags, description: '镜像版本，默认最新', name: 'tag')]
+            env.IMG_TAG = pm.tag
+            env.SUBMITTER = pm.approval
+          }
         }
         sh "echo ${SUBMITTER} 将 ${IMG_NAME}:${IMG_TAG} 发布到生产环境 !"
       }
