@@ -45,7 +45,7 @@ pipeline {
         set +x
         head -n 1 version.txt
         ''' )
-        IMG_NAME = "registry.example.com:5000/${PROJECT_NAME}"
+        IMG_NAME = "${LOCAL_REGISTRY}/${PROJECT_NAME}"
       }
       steps {
         /** 
@@ -59,9 +59,10 @@ pipeline {
     stage ('部署到线上环境') {
       when { branch 'master' }
       environment {
-        IMG_NAME = "registry.cn-shanghai.aliyuncs.com/dengqingpei/${PROJECT_NAME}"
+        IMG_NAME = "${REGISTRY}/dengqingpei/${PROJECT_NAME}"
       }
       steps {
+        
         script {
           def tags = sh returnStdout: true, script : '''curl -s http://registry.example.com:5000/v2/jenkins-sample/tags/list | jq . | grep -E 'v_*' | tail -n 20 | tr -d ' ",' | sort -t '_' -k 2 -nr '''
           def pm = input message: '部署指定镜像版本到线上环境', id:'deployment', ok: '部署', submitterParameter: 'approval', parameters: [choice(choices: tags, description: '镜像版本，默认最新', name: 'tag')]
