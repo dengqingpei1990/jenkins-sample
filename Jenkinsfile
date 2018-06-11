@@ -44,8 +44,12 @@ pipeline {
         #!/bin/bash
         set +x
         head -n 1 version.txt
-        ''' )
+        ''' ).trim()
+
         IMG_NAME = "${LOCAL_REGISTRY}/${PROJECT_NAME}"
+
+        
+
       }
       steps {
         /** 
